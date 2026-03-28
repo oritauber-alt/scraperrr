@@ -12,6 +12,9 @@
 </head>
 <body>
 
+  <!-- Mobile sidebar backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <!-- ── Sidebar ────────────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -74,6 +77,12 @@
     <!-- Top bar -->
     <header class="topbar">
       <div class="topbar-left">
+        <!-- Hamburger button (mobile only) -->
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M3 6h18M3 12h18M3 18h18"/>
+          </svg>
+        </button>
         <h1 class="page-title" id="pageTitle">All Articles</h1>
         <span class="page-subtitle" id="pageSubtitle">Today's AI intelligence</span>
       </div>

@@ -253,6 +253,26 @@ function bookmarkSvg(filled) {
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
 }
 
+// ── Mobile sidebar toggle ────────────────────────────────────────
+const sidebar         = document.querySelector('.sidebar');
+const menuBtn         = document.getElementById('menuBtn');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  sidebarBackdrop.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarBackdrop.classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+menuBtn?.addEventListener('click', openSidebar);
+sidebarBackdrop?.addEventListener('click', closeSidebar);
+
 // ── Sidebar nav ───────────────────────────────────────────────────
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -265,6 +285,8 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     pageTitle.textContent    = title;
     pageSubtitle.textContent = sub;
     renderView();
+    // Close drawer on mobile after selection
+    closeSidebar();
   });
 });
 
