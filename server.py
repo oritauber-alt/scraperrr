@@ -5,13 +5,14 @@ Serves articles via REST API and static dashboard.
 
 import json
 import logging
+import os
 import sys
 import threading
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -113,6 +114,28 @@ def get_articles(background_tasks: BackgroundTasks):
         "sources": meta.get("sources", {}),
         "cache_stale": _cache_is_stale(),
     })
+
+
+@app.post("/api/articles/ingest")
+async def ingest_articles(request: Request):
+    """Receive scraped articles from Modal and write to cache."""
+    secret = os.environ.get("INGEST_SECRET", "")
+    auth = request.headers.get("Authorization", "")
+    if not secret or auth != f"Bearer {secret}":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    data = await request.json()
+    articles = data.get("articles", [])
+    meta = {
+        "last_run": data.get("fetched_at", datetime.now(timezone.utc).isoformat()),
+        "article_ids_seen": [a["id"] for a in articles],
+        "sources": data.get("sources", {}),
+    }
+    TMP_DIR.mkdir(exist_ok=True)
+    CACHE_FILE.write_text(json.dumps(articles, indent=2))
+    RUN_FILE.write_text(json.dumps(meta, indent=2))
+    log.info("Ingested %d articles from Modal", len(articles))
+    return JSONResponse({"ok": True, "count": len(articles)})
 
 
 @app.get("/api/articles/refresh")
